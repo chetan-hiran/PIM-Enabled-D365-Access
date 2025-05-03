@@ -11,20 +11,19 @@ while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
 done
 
 echo "[INFO] Updating system and installing Docker and dependencies..."
-apt-get update -y
-apt-get install -y docker.io docker-compose curl unzip wget
+sudo apt-get update -y
+sudo apt-get install -y docker.io docker-compose curl unzip wget
 
 echo "[INFO] Installing Azure CLI and AzCopy..."
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux
 tar -xf azcopy_v10.tar.gz
-cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
-chmod +x /usr/bin/azcopy
+sudo cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
+sudo chmod +x /usr/bin/azcopy
 
 echo "[INFO] Logging into Azure using Managed Identity..."
 managedIdentity="ac9124e3-66d3-4362-8ef2-15c274cf9834"
 az login --identity --client-id "$managedIdentity" > /dev/null
-
 
 STORAGE_ACCOUNT="staicoachconfigdev"
 CONTAINER_NAME="config"
@@ -37,6 +36,6 @@ for file in "${FILES[@]}"; do
 done
 
 echo "[INFO] Starting docker-compose..."
-docker-compose -f dev.docker-compose.yaml up -d
+docker-compose -f "$HOME/dev.docker-compose.yaml" up -d
 
 echo "[INFO] Setup complete."
