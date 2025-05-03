@@ -14,7 +14,9 @@ cp ./azcopy_linux_amd64_*/azcopy /usr/bin/
 chmod +x /usr/bin/azcopy
 
 echo "[INFO] Logging into Azure using Managed Identity..."
-az login --identity
+
+$managedIdentity = "ac9124e3-66d3-4362-8ef2-15c274cf9834"
+az login --identity --client-id $managedIdentity | Out-Null
 
 echo "[INFO] Creating app directory..."
 mkdir -p /opt/app
