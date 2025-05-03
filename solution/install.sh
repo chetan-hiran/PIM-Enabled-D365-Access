@@ -25,17 +25,15 @@ echo "[INFO] Logging into Azure using Managed Identity..."
 managedIdentity="ac9124e3-66d3-4362-8ef2-15c274cf9834"
 az login --identity --client-id "$managedIdentity" > /dev/null
 
-echo "[INFO] Creating app directory..."
-mkdir -p /opt/app
-cd /opt/app
 
 STORAGE_ACCOUNT="staicoachconfigdev"
 CONTAINER_NAME="config"
 FILES=("dev.docker-compose.yaml" "caddy.yaml" "livekit.yaml" "redis.conf" ".env")
+azcopy login --identity --identity-client-id "$managedIdentity"
 
 echo "[INFO] Downloading configuration files from blob storage using azcopy..."
 for file in "${FILES[@]}"; do
-    azcopy copy "https://${STORAGE_ACCOUNT}.blob.core.windows.net/${CONTAINER_NAME}/${file}" .
+    azcopy copy "https://${STORAGE_ACCOUNT}.blob.core.windows.net/${CONTAINER_NAME}/${file}" "$HOME/${file}"
 done
 
 echo "[INFO] Starting docker-compose..."
