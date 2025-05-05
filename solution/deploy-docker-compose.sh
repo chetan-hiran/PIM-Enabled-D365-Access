@@ -15,9 +15,11 @@ log "Starting deployment script for AI.Coach docker services"
 # STORAGE_ACCOUNT_NAME - Name of the Azure Storage account
 # STORAGE_CONTAINER_NAME - Name of the blob container
 # ENVIRONMENT - Environment to deploy (dev, prod, etc.)
-STORAGE_ACCOUNT_NAME="staicoachconfigdev"
+# MANAGED_IDENTITY_ID - Resource ID of the user-assigned managed identity
+STORAGE_ACCOUNT_NAME="staicoachconfigdev "
 STORAGE_CONTAINER_NAME="config"
-ENVIRONMENT=${ENVIRONMENT:-"dev"}
+ENVIRONMENT="dev"
+MANAGED_IDENTITY_ID="ac9124e3-66d3-4362-8ef2-15c274cf9834"
 
 if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
     log "Error: STORAGE_ACCOUNT_NAME environment variable is not set"
@@ -27,6 +29,12 @@ fi
 log "Using Storage Account: $STORAGE_ACCOUNT_NAME"
 log "Using Container: $STORAGE_CONTAINER_NAME"
 log "Using Environment: $ENVIRONMENT"
+
+if [ -n "$MANAGED_IDENTITY_ID" ]; then
+    log "Using Managed Identity: $MANAGED_IDENTITY_ID"
+else
+    log "Warning: No managed identity ID specified, will use system-assigned identity if available"
+fi
 
 # Set working directory
 WORKDIR="/opt/ai-coach"
@@ -85,12 +93,22 @@ download_blob() {
     while [ $retry_count -lt $max_retries ]; do
         # Use managed identity to get a token for the storage account
         # If running outside Azure VM with managed identity, az CLI will fall back to interactive login
-        az storage blob download --auth-mode login \
-            --account-name $STORAGE_ACCOUNT_NAME \
-            --container-name $STORAGE_CONTAINER_NAME \
-            --name "$blob_name" \
-            --file "$output_file" \
-            --output none 2>/dev/null
+        if [ -n "$MANAGED_IDENTITY_ID" ]; then
+            az storage blob download --auth-mode login \
+                --account-name $STORAGE_ACCOUNT_NAME \
+                --container-name $STORAGE_CONTAINER_NAME \
+                --name "$blob_name" \
+                --file "$output_file" \
+                --identity $MANAGED_IDENTITY_ID \
+                --output none 2>/dev/null
+        else
+            az storage blob download --auth-mode login \
+                --account-name $STORAGE_ACCOUNT_NAME \
+                --container-name $STORAGE_CONTAINER_NAME \
+                --name "$blob_name" \
+                --file "$output_file" \
+                --output none 2>/dev/null
+        fi
             
         if [ $? -eq 0 ]; then
             log "Successfully downloaded $blob_name"
