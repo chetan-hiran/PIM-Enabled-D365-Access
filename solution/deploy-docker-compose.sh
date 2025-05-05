@@ -80,6 +80,42 @@ else
     log "Docker Compose is already installed"
 fi
 
+# Function to list all blobs in the container
+list_container_blobs() {
+    log "Listing all available files in container $STORAGE_CONTAINER_NAME..."
+    
+    # Command to list blobs using managed identity if specified
+    if [ -n "$MANAGED_IDENTITY_ID" ]; then
+        blob_list=$(az storage blob list --auth-mode login \
+            --account-name $STORAGE_ACCOUNT_NAME \
+            --container-name $STORAGE_CONTAINER_NAME \
+            --identity $MANAGED_IDENTITY_ID \
+            --query "[].name" -o tsv 2>/dev/null)
+    else
+        blob_list=$(az storage blob list --auth-mode login \
+            --account-name $STORAGE_ACCOUNT_NAME \
+            --container-name $STORAGE_CONTAINER_NAME \
+            --query "[].name" -o tsv 2>/dev/null)
+    fi
+    
+    # Check if the command was successful
+    if [ $? -eq 0 ]; then
+        if [ -z "$blob_list" ]; then
+            log "No files found in the container"
+        else
+            log "Available files in container:"
+            echo "$blob_list" | while read -r file; do
+                log "  - $file"
+            done
+        fi
+    else
+        log "ERROR: Failed to list blobs in container $STORAGE_CONTAINER_NAME"
+        return 1
+    fi
+    
+    return 0
+}
+
 # Function to download a file from Azure Blob Storage using Managed Identity
 download_blob() {
     local blob_name=$1
@@ -128,6 +164,9 @@ download_blob() {
 # Download configuration files
 log "Downloading configuration files from Azure Blob Storage..."
 mkdir -p $WORKDIR/caddy_data
+
+# First, list all available blobs in the container
+list_container_blobs || log "Warning: Failed to list container blobs, proceeding with download anyway"
 
 # Download Docker Compose file
 if ! download_blob "${ENVIRONMENT}.docker-compose.yaml" "$WORKDIR/docker-compose.yaml"; then
