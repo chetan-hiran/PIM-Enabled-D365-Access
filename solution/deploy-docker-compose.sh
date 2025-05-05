@@ -16,7 +16,7 @@ log "Starting deployment script for AI.Coach docker services"
 # STORAGE_CONTAINER_NAME - Name of the blob container
 # ENVIRONMENT - Environment to deploy (dev, prod, etc.)
 # MANAGED_IDENTITY_ID - Resource ID of the user-assigned managed identity
-STORAGE_ACCOUNT_NAME="staicoachconfigdev "
+STORAGE_ACCOUNT_NAME="staicoachconfigdev"
 STORAGE_CONTAINER_NAME="config"
 ENVIRONMENT="dev"
 MANAGED_IDENTITY_ID="ac9124e3-66d3-4362-8ef2-15c274cf9834"
@@ -37,7 +37,7 @@ else
 fi
 
 # Set working directory
-WORKDIR="/opt/ai-coach"
+WORKDIR="$HOME/ai-coach"
 mkdir -p $WORKDIR
 cd $WORKDIR
 
