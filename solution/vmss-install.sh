@@ -181,4 +181,7 @@ else
 fi
 
 log "Azure Blob Storage downloader script completed successfully"
+log "Starting Docker containers using docker-compose"
+sudo docker-compose -f "$DOWNLOAD_PATH/dev.docker-compose.yaml" up -d
+log "Docker containers started successfully"
 exit 0
