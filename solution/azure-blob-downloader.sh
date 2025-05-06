@@ -34,7 +34,20 @@ if [ -z "$STORAGE_CONTAINER_NAME" ]; then
 fi
 
 # Create download directory if it doesn't exist
-mkdir -p "$DOWNLOAD_PATH"
+if [ ! -d "$DOWNLOAD_PATH" ]; then
+    mkdir -p "$DOWNLOAD_PATH"
+    echo "Created directory: $DOWNLOAD_PATH"
+else
+    echo "Directory already exists: $DOWNLOAD_PATH"
+fi
+
+if [ -d "$DOWNLOAD_PATH" ]; then
+    rm -rf "$DOWNLOAD_PATH"/*
+    echo "Deleted all files from: $DOWNLOAD_PATH"
+else
+    echo "Directory does not exist: $DOWNLOAD_PATH"
+fi
+
 log "Files will be downloaded to: $DOWNLOAD_PATH"
 
 # Check for Azure CLI
@@ -97,7 +110,7 @@ else
         file_count=$((file_count + 1))
         
         # Create directory structure if needed
-        file_dir=$(dirname "$DOWNLOAD_PATH/$filename")
+        file_dir=$(dirname "$DOWNLOAD_PATz storage blob downloaH/$filename")
         mkdir -p "$file_dir"
         
         # Download the file with retry logic
@@ -106,7 +119,7 @@ else
         download_success=false
         
         while [ $retry_count -lt $max_retries ] && [ "$download_success" = false ]; do
-            sudo az storage blob download \
+            sudo ad \
                 --account-name "$STORAGE_ACCOUNT_NAME" \
                 --container-name "$STORAGE_CONTAINER_NAME" \
                 --name "$filename" \
