@@ -61,6 +61,29 @@ if ! command -v az &> /dev/null; then
     log "Azure CLI installed successfully"
 fi
 
+# Install Docker and Docker Compose if not already installed
+if ! command -v docker &> /dev/null; then
+    log "Installing Docker..."
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io
+    systemctl enable docker
+    systemctl start docker
+    log "Docker installed successfully"
+else
+    log "Docker is already installed"
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    log "Installing Docker Compose..."
+    curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    log "Docker Compose installed successfully"
+else
+    log "Docker Compose is already installed"
+fi
+
 if [ -n "$MANAGED_IDENTITY_ID" ]; then
     log "Using User-Assigned Managed Identity: $MANAGED_IDENTITY_ID"
     IDENTITY_FLAG="--identity $MANAGED_IDENTITY_ID"
