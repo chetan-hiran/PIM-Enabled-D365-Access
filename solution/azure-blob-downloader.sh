@@ -119,7 +119,7 @@ else
         download_success=false
         
         while [ $retry_count -lt $max_retries ] && [ "$download_success" = false ]; do
-            sudo ad \
+            sudo az storage blob download \
                 --account-name "$STORAGE_ACCOUNT_NAME" \
                 --container-name "$STORAGE_CONTAINER_NAME" \
                 --name "$filename" \
