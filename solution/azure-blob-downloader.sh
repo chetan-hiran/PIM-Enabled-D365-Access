@@ -56,12 +56,20 @@ else
     IDENTITY_FLAG="--auth-mode login"
 fi
 
+az login --identity --client-id "$MANAGED_IDENTITY_ID" > /dev/null
+if [ $? -ne 0 ]; then
+    log "ERROR: Failed to authenticate with Azure using managed identity"
+    exit 1
+fi
+log "Authenticated with Azure using managed identity"
+
+
 # List blobs in the container
 log "Attempting to list blobs in container $STORAGE_CONTAINER_NAME"
 blob_list_result=$(az storage blob list \
     --account-name "$STORAGE_ACCOUNT_NAME" \
     --container-name "$STORAGE_CONTAINER_NAME" \
-    $IDENTITY_FLAG \
+    --auth-mode login \
     --query "[].name" -o tsv 2>&1)
 az_status=$?
 
