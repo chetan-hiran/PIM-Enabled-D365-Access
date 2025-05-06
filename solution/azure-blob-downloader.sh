@@ -19,7 +19,7 @@ log "Starting Azure Blob Storage downloader script"
 
 STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME:-"staicoacheastus2dev"}
 STORAGE_CONTAINER_NAME=${STORAGE_CONTAINER_NAME:-"config"}
-DOWNLOAD_PATH=${DOWNLOAD_PATH:-"$HOME/aicoach"}
+DOWNLOAD_PATH=${DOWNLOAD_PATH:-"/opt/aicoach"}
 MANAGED_IDENTITY_ID=${MANAGED_IDENTITY_ID:-"ac9124e3-66d3-4362-8ef2-15c274cf9834"}
 
 # Validate required parameters
