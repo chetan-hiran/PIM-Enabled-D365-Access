@@ -106,12 +106,12 @@ else
         download_success=false
         
         while [ $retry_count -lt $max_retries ] && [ "$download_success" = false ]; do
-            az storage blob download \
+            sudo az storage blob download \
                 --account-name "$STORAGE_ACCOUNT_NAME" \
                 --container-name "$STORAGE_CONTAINER_NAME" \
                 --name "$filename" \
                 --file "$DOWNLOAD_PATH/$filename" \
-                $IDENTITY_FLAG \
+                --auth-mode login \
                 --output none
                 
             if [ $? -eq 0 ]; then
